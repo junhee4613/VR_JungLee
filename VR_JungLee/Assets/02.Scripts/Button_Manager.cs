@@ -21,6 +21,7 @@ public class Button_Manager : MonoBehaviour
     public GameObject avartar_title;
     public Sprite[] title = new Sprite[3];
     public int avartar_window_num = 0;
+    public Text sex_Trans_Button_text;
     public void Mic()
     {
         if(mic_Color.GetComponent<Image>().color.a == 1)
@@ -35,31 +36,36 @@ public class Button_Manager : MonoBehaviour
     }
     public void Home()
     {
-        mic_Color.SetActive(false);
-        windows.SetActive(true);
         main_Screen.SetActive(false);
+        windows.SetActive(true);
         home_windows.SetActive(true);
+
     }
     public void Avartar()
     {
-        mic_Color.SetActive(false);
-        windows.SetActive(true);
         main_Screen.SetActive(false);
+        windows.SetActive(true);
         avartar_windows.SetActive(true);
     }
     public void Show()
     {
-        mic_Color.SetActive(false);
-        windows.SetActive(true);
         main_Screen.SetActive(false);
+        windows.SetActive(true);
         show_windows.SetActive(true);
     }
     public void EventRoom()
     {
-        mic_Color.SetActive(false);
-        windows.SetActive(true);
         main_Screen.SetActive(false);
+        windows.SetActive(true);
         eventRoom_windows.SetActive(true);
+    }
+    public void Female()
+    {
+        sex_Trans_Button_text.text = "여자";
+    }
+    public void Male()
+    {
+        sex_Trans_Button_text.text = "남자";
     }
     public void Current_Time()
     {
@@ -78,23 +84,34 @@ public class Button_Manager : MonoBehaviour
         if(avartar_window_num == 0)
         {
             avartar_title.GetComponent<Image>().sprite = title[1];
+            avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(false);
             avartar_window_num += 1;
+            avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(true);
         }
         else if(avartar_window_num == 1)
         {
             avartar_title.GetComponent<Image>().sprite = title[2];
+            avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(false);
             avartar_window_num += 1;
+            avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(true);
         }
         else
         {
-
+            avartar_title.GetComponent<Image>().sprite = title[0];
+            avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(false);
+            avartar_window_num = 0;
+            avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(true);
+            avartar_windows.SetActive(false);
+            main_Screen.SetActive(true);
         }
-        
-        //다음 장면으로 넘어가기
+
+        if (Pop_Window.activeSelf)
+            Pop_Window.SetActive(false);
+
     }
     public void Avartar_Select()
     {
-        if(Pop_Window.activeSelf)
+        if(!Pop_Window.activeSelf)
             Pop_Window.SetActive(true);
     }
     public void Pop_No()
@@ -110,8 +127,10 @@ public class Button_Manager : MonoBehaviour
         {
             if (canvas.activeSelf)
             {
+                avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(false);
                 avartar_window_num = 0;
                 avartar_title.GetComponent<Image>().sprite = title[0];
+                avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(true);
                 canvas.SetActive(false);
                 for (int i = 0; i < windows.transform.childCount; i++)
                 {
@@ -124,7 +143,6 @@ public class Button_Manager : MonoBehaviour
             else
             {
                 canvas.SetActive(true);
-                mic_Color.SetActive(true);
                 main_Screen.SetActive(true);
                 canvas.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - 0.2f, player.transform.position.z) + player.transform.forward * 1.5f;
                 canvas.transform.LookAt(player.transform, Vector3.up);
