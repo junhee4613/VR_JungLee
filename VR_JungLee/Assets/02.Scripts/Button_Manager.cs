@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Oculus.Platform;
 using Oculus.Platform.Models;
+
 public class Button_Manager : MonoBehaviour
 {
     public GameObject mic_Color;
@@ -21,19 +22,15 @@ public class Button_Manager : MonoBehaviour
     public GameObject avartar_title;
     public Sprite[] title = new Sprite[3];
     public int avartar_window_num = 0;
-    public Text sex_Trans_Button_text;
-    public void Mic()
-    {
-        if(mic_Color.GetComponent<Image>().color.a == 1)
-        {
-            mic_Color.GetComponent<Image>().color = new Color(1,1,1,0.5f);
-        }
-        else
-        {
-            mic_Color.GetComponent<Image>().color = new Color(1,1,1,1);
-        }
-
-    }
+    public Sprite[] custom_Avartar = new Sprite[9];
+    public Sprite[] custom_bodys = new Sprite[4];
+    public Sprite[] custom_faces = new Sprite[10];
+    public Sprite[] custom_cloths = new Sprite[13];
+    public Image[] sex_avartar_Change = new Image[4];
+    public Image player_avartar;
+    [Header("나중에 이걸로 UI 높이 조절하면 됨 0이 기본세팅")]
+    public float ui_height = 0;
+    #region 메인UI버튼들
     public void Home()
     {
         main_Screen.SetActive(false);
@@ -59,36 +56,46 @@ public class Button_Manager : MonoBehaviour
         windows.SetActive(true);
         eventRoom_windows.SetActive(true);
     }
+    #endregion
     public void Female()
     {
-        sex_Trans_Button_text.text = "여자";
+        sex_avartar_Change[0].sprite = custom_bodys[2];
+        sex_avartar_Change[1].sprite = custom_bodys[3];
+        sex_avartar_Change[2].sprite = custom_bodys[1];
+        sex_avartar_Change[3].sprite = custom_bodys[0];
     }
     public void Male()
     {
-        sex_Trans_Button_text.text = "남자";
+        sex_avartar_Change[0].sprite = custom_bodys[0];
+        sex_avartar_Change[1].sprite = custom_bodys[1];
+        sex_avartar_Change[2].sprite = custom_bodys[2];
+        sex_avartar_Change[3].sprite = custom_bodys[3];
     }
-    public void Current_Time()
+    
+    
+    public void Avartar_Select()
     {
-        
-        if(DateTime.Now.Hour > 11)
-        {
-            current_time_KR.text = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString() + " PM";
-        }
-        else
-        {
-            current_time_KR.text = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString() + " AM"; ;
-        }
+        if(!Pop_Window.activeSelf)
+            Pop_Window.SetActive(true);
+
+        player_avartar.sprite = custom_Avartar[UnityEngine.Random.Range(0, 8)];
+            
+    }
+    #region 팝업창
+    public void Pop_No()
+    {
+        Pop_Window.SetActive(false);
     }
     public void Pop_Yes()
     {
-        if(avartar_window_num == 0)
+        if (avartar_window_num == 0)
         {
             avartar_title.GetComponent<Image>().sprite = title[1];
             avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(false);
             avartar_window_num += 1;
             avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(true);
         }
-        else if(avartar_window_num == 1)
+        else if (avartar_window_num == 1)
         {
             avartar_title.GetComponent<Image>().sprite = title[2];
             avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(false);
@@ -109,22 +116,30 @@ public class Button_Manager : MonoBehaviour
             Pop_Window.SetActive(false);
 
     }
-    public void Avartar_Select()
-    {
-        if(!Pop_Window.activeSelf)
-            Pop_Window.SetActive(true);
-    }
-    public void Pop_No()
-    {
-        Pop_Window.SetActive(false);
-    }
+    #endregion
     private void Update()
     {
+        Debug.Log(player.transform.forward);
+
         Current_Time();
-
-
-        if (Input.GetKeyDown(KeyCode.JoystickButton0))
+        // A, X 버튼 감지
+        if (Input.GetKeyDown(KeyCode.JoystickButton0) || Input.GetKeyDown(KeyCode.JoystickButton2))
         {
+            if (mic_Color.GetComponent<Image>().color.a == 1)
+            {
+                mic_Color.GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+            }
+            else
+            {
+                mic_Color.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            }
+        }
+
+        // Y,B 버튼 감지
+        if (Input.GetKeyDown(KeyCode.JoystickButton3) || Input.GetKeyDown(KeyCode.JoystickButton1))
+        {
+            Debug.Log(new Vector3(player.transform.position.x, canvas.transform.position.y, player.transform.position.z) + player.transform.forward * 1.5f);
+
             if (canvas.activeSelf)
             {
                 avartar_windows.transform.GetChild(avartar_window_num).gameObject.SetActive(false);
@@ -134,7 +149,7 @@ public class Button_Manager : MonoBehaviour
                 canvas.SetActive(false);
                 for (int i = 0; i < windows.transform.childCount; i++)
                 {
-                    if(windows.transform.GetChild(i).gameObject.activeSelf)
+                    if (windows.transform.GetChild(i).gameObject.activeSelf)
                         windows.transform.GetChild(i).gameObject.SetActive(false);
                 }
                 if (windows.activeSelf)
@@ -144,10 +159,23 @@ public class Button_Manager : MonoBehaviour
             {
                 canvas.SetActive(true);
                 main_Screen.SetActive(true);
-                canvas.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - 0.2f, player.transform.position.z) + player.transform.forward * 1.5f;
+                Vector3 tempPOs = new Vector3(player.transform.position.x, canvas.transform.position.y, player.transform.position.z) + player.transform.forward * 1.5f;
+                canvas.transform.position = new Vector3(tempPOs.x, player.transform.position.y + ui_height, tempPOs.z);
                 canvas.transform.LookAt(player.transform, Vector3.up);
 
             }
+        }
+    }
+    public void Current_Time()
+    {
+
+        if (DateTime.Now.Hour > 11)
+        {
+            current_time_KR.text = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString() + " PM";
+        }
+        else
+        {
+            current_time_KR.text = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString() + " AM"; ;
         }
     }
 }
